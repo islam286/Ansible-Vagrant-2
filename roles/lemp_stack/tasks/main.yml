@@ -1,0 +1,58 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+  become: true
+
+  - name: Set Nginx document root and create directory
+  file:
+    path: /var/www/html/nginx
+    state: directory
+  become: true
+
+- name: Configure Nginx to listen on port 8080
+  command: sudo sed -i -E 's/listen [0-9]+;/listen 8080;/; s/root \/var\/www\/html;/root /var/www/html/nginx;/g' /etc/nginx/sites-available/default
+  become: true
+
+- name: Move index.nginx-debian.html to Nginx document root
+  command: mv /var/www/html/index.nginx-debian.html /var/www/html/nginx/
+  become: true
+
+- name: Restart Nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  become: true
+
+
+- name: Install PHP and required modules
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - php-fpm
+    - php-mysql
+    - php-curl
+  become: true
+
+- name: Secure MySQL installation
+  debconf:
+    name: mysql-server
+    question: mysql-server/root_password
+    value: "{{ mysql_root_password }}"
+    vtype: password
+  vars:
+    mysql_root_password: "root"
+  become: true
+
+
+- name: Restart Services
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - nginx
+    - mysql
+    - php8.1-fpm

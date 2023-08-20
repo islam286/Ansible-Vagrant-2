@@ -1,0 +1,9 @@
+---
+- name: Provisioning on VM
+  hosts: clients
+  become: true
+
+  roles:
+    - user_setup
+    - lamp_stack
+    - lemp_stack

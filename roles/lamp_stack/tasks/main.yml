@@ -1,0 +1,43 @@
+---
+- name: Update package cache
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  command: sudo apt-get upgrade -y
+
+- name: Install Apache
+  apt:
+    name: apache2
+    state: present
+  become: true
+
+- name: Start and enable Apache
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+  become: true
+
+- name: Install PHP and required modules
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - php
+    - mysql-server
+    - libapache2-mod-php
+    - php-mysql
+    - php-curl
+  become: true
+
+- name: Gather facts
+  setup:
+
+- name: Restart Services
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - apache2
+    - mysql
