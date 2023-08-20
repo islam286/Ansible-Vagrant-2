@@ -1,6 +1,4 @@
----
-
-      
+---   
 - name: Create users and setup SSH
   ansible.builtin.user:
     name: "{{ item }}"
@@ -27,13 +25,6 @@
     user: "{{ item }}"
     state: present
     key: "{{ lookup('file', '/home/islam/.ssh/id_rsa.pub') }}"
-  loop: "{{ users }}"
-  become: true
-
-- name: Set permissions for .ssh directory
-  ansible.builtin.file:
-    path: "/home/{{ item }}/.ssh"
-    mode: '0700'
   loop: "{{ users }}"
   become: true
 
